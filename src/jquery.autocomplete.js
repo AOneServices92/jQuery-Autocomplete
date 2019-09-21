@@ -219,6 +219,10 @@
         onFocus: function () {
             var that = this;
 
+            if (that.disabled) {
+                return;
+            }
+
             that.fixPosition();
 
             if (that.el.val().length >= that.options.minChars) {
@@ -227,12 +231,19 @@
         },
 
         onBlur: function () {
-            var that = this;
+            var that = this,
+                options = that.options,
+                value = that.el.val(),
+                query = that.getQuery(value);
 
             // If user clicked on a suggestion, hide() will
             // be canceled, otherwise close suggestions
             that.blurTimeoutId = setTimeout(function () {
                 that.hide();
+
+                if (that.selection && that.currentValue !== query) {
+                    (options.onInvalidateSelection || $.noop).call(that.element);
+                }
             }, 200);
         },
 
@@ -263,7 +274,7 @@
                 'z-index': options.zIndex
             });
 
-            this.options = options;            
+            this.options = options;
         },
 
 
